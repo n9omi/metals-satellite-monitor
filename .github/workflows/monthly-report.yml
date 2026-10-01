@@ -1,0 +1,50 @@
+# Monthly live run with an Earth Engine service account.
+# Setup (once):
+#   1. In Google Cloud, create a service account in your EE-registered project and
+#      register it for Earth Engine; create a JSON key.
+#   2. Repo -> Settings -> Secrets and variables -> Actions -> New repository secret:
+#        EE_PROJECT               your project id
+#        GEE_SERVICE_ACCOUNT_KEY  the full JSON key contents
+#   3. Settings -> Actions -> General -> Workflow permissions -> Read and write.
+name: monthly-report
+
+on:
+  schedule:
+    - cron: "17 12 8 * *"   # 8th of each month, 12:17 UTC (lets VIIRS / CHIRPS catch up)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monthly-report
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -e .
+      - name: Run pipeline
+        env:
+          EE_PROJECT: ${{ secrets.EE_PROJECT }}
+          GEE_SERVICE_ACCOUNT_KEY: ${{ secrets.GEE_SERVICE_ACCOUNT_KEY }}
+        run: bash run.sh --workers 3
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cache outputs figures reports
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Monthly satellite update $(date -u +%Y-%m)"
+            git push
+          fi

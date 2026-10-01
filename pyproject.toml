@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metals-satellite-monitor"
+version = "0.1.0"
+description = "Satellite monitoring of metals and minerals supply with Google Earth Engine: exploratory and fundamental analysis with a summary PDF."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Naomi Tinga" }]
+dependencies = [
+  "earthengine-api>=1.0",
+  "pandas>=2.0",
+  "numpy>=1.24",
+  "matplotlib>=3.7",
+  "pyyaml>=6.0",
+  "reportlab>=4.0",
+  "yfinance>=0.2.40",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pypdf>=4", "ruff>=0.5"]
+notebook = ["marimo>=0.9"]
+
+[project.scripts]
+metals-monitor = "metals_monitor.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E741"]

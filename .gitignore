@@ -1,0 +1,28 @@
+# secrets
+.env
+*service-account*.json
+gee-key*.json
+
+# data formats never committed
+*.parquet
+
+# demo / scratch output (regenerate with: bash run.sh --demo)
+demo_out/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+build/
+dist/
+
+# notebooks / editors / OS
+__marimo__/
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store

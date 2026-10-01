@@ -1,0 +1,235 @@
+# -----------------------------------------------------------------------------
+# Sites and supply regions monitored by the pipeline.
+#
+# Coordinates are APPROXIMATE centroids. Run `bash run.sh --check-sites` and
+# adjust lat / lon / buffer_km until the red circle in figures/site_checks/
+# covers the pits, plant, ponds or berths you care about.
+#
+# Site fields
+#   label        display name
+#   lat, lon     decimal degrees (WGS84)
+#   buffer_km    radius of the region of interest (ROI)
+#   role         mine | mine_smelter | smelter | industrial_park | port | brine
+#   commodities  list; a site feeds every commodity index it is listed under
+#   indicators   any of: s2, s1, s5p, viirs, firms, dw
+#   weight       optional, default 1.0 - relative weight inside commodity indices
+#                (set to your capacity / production estimates)
+#   scale        optional, metres per pixel for S2/S1/DW reductions (default 30, or 60 if buffer > 12 km)
+#   note         free text, shown in the report appendix
+#
+# Region fields
+#   bbox         [west, south, east, north]
+#   risk_side    dry  -> drought hurts supply (hydro power, process water)
+#                wet  -> extreme rain / cyclones hurt supply (haulage, ports)
+#   mechanism    one line, shown in the report
+# -----------------------------------------------------------------------------
+
+sites:
+  # ---------------- Copper ----------------
+  escondida:
+    label: Escondida (BHP)
+    lat: -24.27
+    lon: -69.07
+    buffer_km: 9
+    role: mine
+    commodities: [copper]
+    country: Chile
+    indicators: [s2, viirs]
+    note: World's largest copper mine; hyper-arid, so optical imagery works year-round.
+
+  chuquicamata:
+    label: Chuquicamata mine + smelter (Codelco)
+    lat: -22.29
+    lon: -68.90
+    buffer_km: 10
+    role: mine_smelter
+    commodities: [copper]
+    country: Chile
+    indicators: [s2, s5p, viirs, firms]
+    note: Smelter SO2 tracks throughput; Calama town adds NO2 background.
+
+  kamoa_kakula:
+    label: Kamoa-Kakula (Ivanhoe / Zijin)
+    lat: -10.887
+    lon: 25.181
+    buffer_km: 12
+    role: mine_smelter
+    commodities: [copper]
+    country: DRC
+    indicators: [s2, dw, viirs, s5p, firms]
+    note: Underground; surface signal comes from concentrators, tailings and the on-site smelter.
+
+  cobre_panama:
+    label: Cobre Panama pits + plant (First Quantum)
+    lat: 8.84
+    lon: -80.64
+    buffer_km: 8
+    role: mine
+    commodities: [copper]
+    country: Panama
+    indicators: [s1, s2, dw, viirs]
+    note: Halted late 2023, a natural test case for every signal. Persistent cloud, so lean on SAR.
+
+  cobre_panama_port:
+    label: Cobre Panama Punta Rincon port + coal plant
+    lat: 9.006
+    lon: -80.690
+    buffer_km: 4
+    role: port
+    commodities: [copper]
+    country: Panama
+    indicators: [s1, viirs, s5p]
+    note: Captive coal plant NO2 and port lights track operating status.
+
+  grasberg:
+    label: Grasberg district (Freeport)
+    lat: -4.05
+    lon: 137.12
+    buffer_km: 10
+    role: mine
+    commodities: [copper, gold]
+    country: Indonesia
+    indicators: [s1, s2, viirs]
+    note: Block-cave underground; persistent cloud, so SAR first. Verify the ROI.
+
+  morenci:
+    label: Morenci (Freeport)
+    lat: 33.08
+    lon: -109.35
+    buffer_km: 10
+    role: mine
+    commodities: [copper]
+    country: USA
+    indicators: [s2, viirs]
+    note: Large open pit with heap leach and SX-EW.
+
+  # ---------------- Nickel / PGMs ----------------
+  norilsk:
+    label: Norilsk complex (Nornickel)
+    lat: 69.33
+    lon: 88.10
+    buffer_km: 30
+    role: smelter
+    commodities: [nickel, palladium, copper]
+    country: Russia
+    indicators: [s5p, viirs, firms]
+    note: Very large point SO2 source. No S5P in polar night; VIIRS gaps in polar summer.
+
+  morowali_imip:
+    label: IMIP Morowali (Tsingshan et al.)
+    lat: -2.83
+    lon: 122.16
+    buffer_km: 8
+    role: industrial_park
+    commodities: [nickel]
+    country: Indonesia
+    indicators: [s1, s2, dw, viirs, s5p, firms]
+    note: RKEF / NPI and HPAL hub with captive coal power.
+
+  weda_bay_iwip:
+    label: IWIP Weda Bay (Halmahera)
+    lat: 0.476
+    lon: 128.00
+    buffer_km: 10
+    role: industrial_park
+    commodities: [nickel]
+    country: Indonesia
+    indicators: [s1, s2, dw, viirs, s5p]
+    note: Centred on the IWIP captive power station; check that the ROI covers the smelters.
+
+  # ---------------- Lithium ----------------
+  greenbushes:
+    label: Greenbushes (Talison)
+    lat: -33.86
+    lon: 116.06
+    buffer_km: 6
+    role: mine
+    commodities: [lithium]
+    country: Australia
+    indicators: [s2, dw, viirs]
+    note: Hard-rock spodumene; pit and waste-dump growth is the capacity proxy.
+
+  salar_de_atacama:
+    label: Salar de Atacama ponds (SQM / Albemarle)
+    lat: -23.62
+    lon: -68.36
+    buffer_km: 18
+    role: brine
+    commodities: [lithium]
+    country: Chile
+    indicators: [s2]
+    note: Pond area (MNDWI water fraction) tracks brine in evaporation. Approximate - verify the ROI.
+
+  # ---------------- Iron ore ----------------
+  port_hedland:
+    label: Port Hedland export hub
+    lat: -20.31
+    lon: 118.58
+    buffer_km: 8
+    role: port
+    commodities: [iron_ore]
+    country: Australia
+    indicators: [s1, s2, viirs]
+    note: Stockpile yards and berths; SAR change and night lights track throughput.
+
+  mt_whaleback:
+    label: Mt Whaleback / Newman (BHP)
+    lat: -23.36
+    lon: 119.67
+    buffer_km: 8
+    role: mine
+    commodities: [iron_ore]
+    country: Australia
+    indicators: [s2, viirs]
+
+  # ---------------- Bauxite / aluminium ----------------
+  kamsar:
+    label: Port Kamsar bauxite terminal (CBG)
+    lat: 10.65
+    lon: -14.61
+    buffer_km: 6
+    role: port
+    commodities: [bauxite, aluminum]
+    country: Guinea
+    indicators: [s1, s2, viirs]
+    note: Wet season (about Jun-Oct) slows loading; SAR sees through cloud.
+
+regions:
+  yunnan:
+    label: Yunnan hydro system
+    bbox: [97.5, 21.1, 106.2, 29.3]
+    commodities: [aluminum]
+    risk_side: dry
+    mechanism: Hydro-powered aluminium smelting; drought leads to power curtailment (cf. 2022-23).
+  sichuan:
+    label: Sichuan hydro system
+    bbox: [97.3, 26.0, 108.6, 34.3]
+    commodities: [lithium, aluminum]
+    risk_side: dry
+    mechanism: Hydro-heavy grid; heat plus drought leads to industrial power rationing (cf. Aug 2022).
+  zambezi_kariba:
+    label: Upper Zambezi / Kariba catchment
+    bbox: [22.0, -19.0, 29.5, -11.5]
+    commodities: [copper]
+    risk_side: dry
+    mechanism: Kariba hydro supplies the Zambian copperbelt; drought leads to load-shedding (cf. 2024).
+  guinea_boke:
+    label: Boke bauxite region
+    bbox: [-14.9, 10.3, -13.2, 12.0]
+    commodities: [bauxite, aluminum]
+    risk_side: wet
+    mechanism: An extreme wet season disrupts haulage and loading, so exports dip.
+  pilbara:
+    label: Pilbara iron ore belt
+    bbox: [115.5, -24.5, 121.5, -19.8]
+    commodities: [iron_ore]
+    risk_side: wet
+    mechanism: Cyclone and heavy-rain season (about Dec-Apr) causes rail and port outages.
+
+# Monthly futures pulled with yfinance. Commodities without a ticker can be
+# supplied with --prices-csv (date,commodity,price).
+price_tickers:
+  copper: HG=F
+  aluminum: ALI=F
+  palladium: PA=F
+  gold: GC=F
